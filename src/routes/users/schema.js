@@ -22,7 +22,7 @@ const UserModel = new Schema({
     required: true,
     minLength: 6,
   },
-  refreshTokens: [
+  tokens: [
     {
       token: {
         type: String,

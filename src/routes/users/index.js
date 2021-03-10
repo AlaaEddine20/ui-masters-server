@@ -1,9 +1,8 @@
 const express = require("express");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const config = require("config");
 const UserModel = require("./schema");
-
+const { authorize } = require("../../middlewares/auth");
 const router = express.Router();
 
 router.post("/register", async (req, res, next) => {
@@ -28,21 +27,8 @@ router.post("/register", async (req, res, next) => {
     newUser.password = hashedPass;
 
     await newUser.save();
-    const payload = {
-      user: {
-        id: newUser._id,
-      },
-    };
 
-    jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      { expiresIn: "15m" },
-      (err, token) => {
-        if (err) throw err;
-        res.json({ token });
-      }
-    );
+    res.send("Registered successfully!!");
   } catch (error) {
     next(error);
   }
@@ -51,26 +37,54 @@ router.post("/register", async (req, res, next) => {
 router.post("/login", async (req, res, next) => {
   try {
     const { email, password } = req.body;
+
     const user = await UserModel.findByCredentials(email, password);
+
+    if (!user) return res.status(401).send("You must register first!");
 
     const accessToken = await jwt.sign(
       { _id: user._id },
       process.env.JWT_SECRET,
-      { expiresIn: "15m" }
+      { expiresIn: "24h" }
     );
-    const refreshToken = await jwt.sign(
-      { _id: user._id },
-      process.env.JWT_REFRESH,
-      { expiresIn: "1 week" }
-    );
-    user.refreshTokens = user.refreshTokens.concat({ token: refreshToken });
+
+    user.tokens = user.tokens.concat({ token: accessToken });
     await user.save();
 
-    res.send({ accessToken, refreshToken });
+    res.send({ accessToken });
   } catch (error) {
     console.log(error);
     next(error);
   }
 });
 
+router.get("/me", authorize, async (req, res, next) => {
+  try {
+    const user = await UserModel.findById(req.user.id);
+    res.send(user);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+});
+
+router.get("/all", authorize, async (req, res, next) => {
+  try {
+    const users = await UserModel.find().select("-password");
+    res.send(users);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+});
+
+router.get("/:id", authorize, async (req, res, next) => {
+  try {
+    const userById = await UserModel.findById(req.params.id);
+    res.send(userById);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+});
 module.exports = router;
