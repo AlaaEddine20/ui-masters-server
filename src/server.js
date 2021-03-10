@@ -6,7 +6,7 @@ const connectToDB = require("./config/connectToDb");
 
 // ROUTER
 const userRouter = require("./routes/users/index");
-
+const postRouter = require("./routes/posts/index");
 // SERVER
 const server = express();
 
@@ -20,7 +20,7 @@ server.use(cors());
 
 // ROUTES
 server.use("/users", userRouter);
-
+server.use("/posts", postRouter);
 console.log(listEndpoints(server));
 
 // PORT

@@ -87,4 +87,23 @@ router.get("/:id", authorize, async (req, res, next) => {
     next(error);
   }
 });
+
+router.put("/:id", authorize, async (req, res, next) => {
+  try {
+    const user = await UserModel.findById(req.params.id);
+
+    if (!user) return res.status(404).send("User not found");
+
+    res.user = user;
+
+    const updatedUser = await res.user.set(req.body);
+
+    await updatedUser.save();
+
+    res.send("Updated");
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+});
 module.exports = router;
