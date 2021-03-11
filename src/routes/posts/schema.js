@@ -29,7 +29,7 @@ const PostModel = new Schema({
   likes: [
     {
       user: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "User",
       },
     },

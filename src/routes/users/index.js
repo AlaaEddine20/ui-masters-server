@@ -55,11 +55,9 @@ router.post("/login", async (req, res, next) => {
 
     if (!user) return res.status(401).send("You must register first!");
 
-    const accessToken = await jwt.sign(
-      { _id: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "24h" }
-    );
+    const accessToken = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "30d",
+    });
 
     user.tokens = user.tokens.concat({ token: accessToken });
     await user.save();

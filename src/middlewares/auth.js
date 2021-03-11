@@ -5,20 +5,16 @@ const authorize = async (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
 
-    const decoded = await jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     if (decoded) {
       const user = await UserModel.findById(decoded._id);
       req.user = user;
-
       next();
-    } else {
-      const err = new Error("unauthorized");
-      next(err);
     }
   } catch (e) {
     console.log(e);
-    const err = new Error("something is wrong");
+    const err = new Error("Token is expired");
     next(err);
   }
 };
