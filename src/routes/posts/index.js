@@ -11,10 +11,10 @@ router.post("/", authorize, async (req, res, next) => {
 
     if (!user) return res.status(404).send("User not found!");
 
+    // const { postBody } = req.body;
     const newPost = new PostModel({
-      title,
-      code,
-      desctription,
+      title: req.body.title,
+      description: req.body.description,
       user: req.user.id,
       name: req.user.name,
     });

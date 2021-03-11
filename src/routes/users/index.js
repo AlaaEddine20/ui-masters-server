@@ -3,6 +3,19 @@ const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const UserModel = require("./schema");
 const { authorize } = require("../../middlewares/auth");
+const multer = require("multer");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("../../utils/cloudinary");
+
+// cloud storage
+const cloudStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "ui-masters-users",
+  },
+});
+
+const cloudMulter = multer({ storage: cloudStorage });
 const router = express.Router();
 
 router.post("/register", async (req, res, next) => {
@@ -57,6 +70,37 @@ router.post("/login", async (req, res, next) => {
     next(error);
   }
 });
+
+router.post(
+  "/:userId/upload",
+  cloudMulter.single("image"),
+  async (req, res, next) => {
+    try {
+      const image = { profilePic: req.file.path };
+      const profilePic = await UserModel.findByIdAndUpdate(
+        req.params.userId,
+        image,
+        {
+          runValidators: true,
+          new: true,
+        }
+      );
+
+      if (profilePic) {
+        res.status(201).send("image uploaded");
+      } else {
+        const err = new Error(
+          `User with id ${req.params.userId} doesn't exist`
+        );
+        err.httpStatusCode = 404;
+        next(err);
+      }
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  }
+);
 
 router.get("/me", authorize, async (req, res, next) => {
   try {

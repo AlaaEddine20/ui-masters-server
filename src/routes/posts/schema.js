@@ -1,4 +1,5 @@
-const { Schema, model, Mongoose } = require("mongoose");
+const { Schema, model } = require("mongoose");
+const mongoose = require("mongoose");
 
 const PostModel = new Schema({
   user: {
@@ -16,7 +17,6 @@ const PostModel = new Schema({
   },
   code: {
     type: String,
-    required: true,
   },
   description: {
     type: String,
