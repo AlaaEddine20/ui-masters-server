@@ -6,7 +6,19 @@ const PostModel = new Schema({
     ref: "User",
     required: true,
   },
+  name: {
+    type: String,
+    required: true,
+  },
   title: {
+    type: String,
+    required: true,
+  },
+  code: {
+    type: String,
+    required: true,
+  },
+  description: {
     type: String,
     required: true,
   },
@@ -32,6 +44,10 @@ const PostModel = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
+      date: {
+        type: Date,
+        default: Date.now(),
+      },
       likes: [
         {
           user: {
@@ -40,10 +56,6 @@ const PostModel = new Schema({
           },
         },
       ],
-      date: {
-        type: Date,
-        default: Date.now(),
-      },
     },
   ],
 });

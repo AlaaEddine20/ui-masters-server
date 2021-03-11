@@ -22,6 +22,10 @@ const UserModel = new Schema({
     required: true,
     minLength: 6,
   },
+  profilePic: {
+    type: String,
+    required: false,
+  },
   tokens: [
     {
       token: {
