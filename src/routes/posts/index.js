@@ -161,13 +161,16 @@ router.put("/unlike/:postId/", authorize, async (req, res, next) => {
 
 router.put("/comment/:postId", authorize, async (req, res, next) => {
   try {
-    const { commentContent } = req.body;
-
     const post = await PostModel.findById(req.params.postId);
     const user = await UserModel.findById(req.user._id);
 
     if (!user) return res.status(404).send("User not found");
     if (!post) return res.status(404).send("Post not found");
+
+    const newComment = {
+      text,
+      name,
+    };
   } catch (error) {
     console.log(error);
     next(error);
