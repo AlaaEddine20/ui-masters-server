@@ -44,6 +44,7 @@ router.post("/register", async (req, res, next) => {
     res.send("Registered successfully!!");
   } catch (error) {
     next(error);
+    return res.status(500).json({ msg: err.message });
   }
 });
 
@@ -51,21 +52,88 @@ router.post("/login", async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    const user = await UserModel.findByCredentials(email, password);
+    const user = await UserModel.findOne({ email });
 
     if (!user) return res.status(401).send("You must register first!");
 
+    const isMatch = await bcryptjs.compare(password, user.password);
+
+    if (!isMatch) return res.status(400).json({ msg: "Wrong password" });
+
     const accessToken = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    const refreshToken = jwt.sign({ _id: user._id }, process.env.JWT_REFRESH, {
       expiresIn: "30d",
     });
 
-    user.tokens = user.tokens.concat({ token: accessToken });
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      path: "/refreshToken",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+
+    user.refreshTokens = user.refreshTokens.concat({ token: refreshToken });
     await user.save();
 
-    res.send({ accessToken });
+    res.json({
+      msg: "Logged in",
+      accessToken,
+      refreshToken,
+    });
+  } catch (error) {
+    next(error);
+    return res.status(500).json({ msg: err.message });
+  }
+});
+
+router.post("/refreshToken", async (req, res, next) => {
+  try {
+    const oldRefreshToken = req.body.oldRefreshToken;
+    const decodedRefresh = await jwt.verify(
+      oldRefreshToken,
+      process.env.JWT_REFRESH
+    );
+    if (decodedRefresh) {
+      const user = await UserModel.findById(decodedRefresh._id);
+      user.refreshTokens = user.refreshTokens.filter(
+        (t) => t.token !== oldRefreshToken
+      );
+
+      const accessToken = await jwt.sign(
+        { _id: user._id },
+        process.env.JWT_SECRET,
+        { expiresIn: "15 mins" }
+      );
+
+      const refreshToken = await jwt.sign(
+        { _id: user._id },
+        process.env.JWT_REFRESH,
+        { expiresIn: "1 week" }
+      );
+
+      user.refreshTokens = user.refreshTokens.concat({ token: refreshToken });
+      await user.save();
+
+      res.send({ refreshToken, accessToken });
+    } else {
+      const err = new Error("error in refresh");
+      next(err);
+    }
   } catch (error) {
     console.log(error);
     next(error);
+  }
+});
+
+router.post("/logout", authorize, async (req, res, next) => {
+  try {
+    res.clearCookie("refreshToken", { path: "/refreshToken" });
+    return res.json({ msg: "Logged out" });
+  } catch (error) {
+    next(error);
+    return res.status(500).json({ msg: err.message });
   }
 });
 

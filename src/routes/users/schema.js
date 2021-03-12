@@ -27,7 +27,8 @@ const UserModel = new Schema({
     required: false,
   },
   likedPosts: [{ type: Schema.Types.ObjectId, ref: "Post" }],
-  tokens: [
+
+  refreshTokens: [
     {
       token: {
         type: String,
@@ -35,18 +36,6 @@ const UserModel = new Schema({
     },
   ],
 });
-
-UserModel.statics.findByCredentials = async function (email, password) {
-  const user = await this.findOne({ email });
-
-  if (user) {
-    const isMatch = await bcryptjs.compare(password, user.password);
-    if (isMatch) return user;
-    else return null;
-  } else {
-    return null;
-  }
-};
 
 UserModel.methods.toJSON = function () {
   const user = this;

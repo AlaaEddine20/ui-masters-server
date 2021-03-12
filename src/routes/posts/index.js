@@ -99,7 +99,7 @@ router.get("/userPosts", authorize, async (req, res, next) => {
     const posts = await PostModel.find();
 
     const userPosts = posts.filter(
-      (post) => post.user.toString() === req.user.id.toString()
+      (post) => post.user.toString() === req.user._id.toString()
     );
 
     res.status(201).send(userPosts);
@@ -153,6 +153,21 @@ router.put("/unlike/:postId/", authorize, async (req, res, next) => {
     await post.save();
 
     res.send(post);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+});
+
+router.put("/comment/:postId", authorize, async (req, res, next) => {
+  try {
+    const { commentContent } = req.body;
+
+    const post = await PostModel.findById(req.params.postId);
+    const user = await UserModel.findById(req.user._id);
+
+    if (!user) return res.status(404).send("User not found");
+    if (!post) return res.status(404).send("Post not found");
   } catch (error) {
     console.log(error);
     next(error);
