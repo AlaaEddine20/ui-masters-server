@@ -7,7 +7,7 @@ const PostModel = new Schema({
     ref: "User",
     required: true,
   },
-  name: {
+  username: {
     type: String,
     required: true,
   },
@@ -17,6 +17,7 @@ const PostModel = new Schema({
   },
   code: {
     type: String,
+    required: true,
   },
   description: {
     type: String,

@@ -22,9 +22,9 @@ router.post("/register", async (req, res, next) => {
   try {
     const { name, lastname, email, password } = req.body;
 
-    const user = await UserModel.findOne({ email }).select("-password");
+    const userExists = await UserModel.findOne({ email }).select("-password");
 
-    if (user) return res.status(401).send("User already exists!");
+    if (userExists) return res.status(401).send("User already exists!");
 
     const newUser = new UserModel({
       name,
@@ -33,18 +33,18 @@ router.post("/register", async (req, res, next) => {
       password,
     });
 
-    const salt = await bcryptjs.genSalt(10);
-
-    const hashedPass = await bcryptjs.hash(password, salt);
-
-    newUser.password = hashedPass;
-
     await newUser.save();
 
-    res.send("Registered successfully!!");
+    res.json({
+      success: true,
+      newUser,
+    });
   } catch (error) {
     next(error);
-    return res.status(500).json({ msg: err.message });
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 });
 
@@ -52,78 +52,42 @@ router.post("/login", async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
+    if (password.length < 6)
+      return res.status(400).json({
+        success: false,
+        error: "Password must contain more than 6 characters",
+      });
+
     const user = await UserModel.findOne({ email });
 
-    if (!user) return res.status(401).send("You must register first!");
+    if (!user) return res.status(401).json({ msg: "You must register first!" });
 
     const isMatch = await bcryptjs.compare(password, user.password);
 
     if (!isMatch) return res.status(400).json({ msg: "Wrong password" });
 
     const accessToken = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
-
-    const refreshToken = jwt.sign({ _id: user._id }, process.env.JWT_REFRESH, {
       expiresIn: "30d",
     });
 
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      path: "/refreshToken",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
+    // const refreshToken = jwt.sign({ _id: user._id }, process.env.JWT_REFRESH, {
+    //   expiresIn: "30d",
+    // });
 
-    user.refreshTokens = user.refreshTokens.concat({ token: refreshToken });
+    user.tokens = user.tokens.concat({ token: accessToken });
     await user.save();
 
     res.json({
-      msg: "Logged in",
+      success: true,
+      user,
       accessToken,
-      refreshToken,
     });
   } catch (error) {
     next(error);
-    return res.status(500).json({ msg: err.message });
-  }
-});
-
-router.post("/refreshToken", async (req, res, next) => {
-  try {
-    const oldRefreshToken = req.body.oldRefreshToken;
-    const decodedRefresh = await jwt.verify(
-      oldRefreshToken,
-      process.env.JWT_REFRESH
-    );
-    if (decodedRefresh) {
-      const user = await UserModel.findById(decodedRefresh._id);
-      user.refreshTokens = user.refreshTokens.filter(
-        (t) => t.token !== oldRefreshToken
-      );
-
-      const accessToken = await jwt.sign(
-        { _id: user._id },
-        process.env.JWT_SECRET,
-        { expiresIn: "15 mins" }
-      );
-
-      const refreshToken = await jwt.sign(
-        { _id: user._id },
-        process.env.JWT_REFRESH,
-        { expiresIn: "1 week" }
-      );
-
-      user.refreshTokens = user.refreshTokens.concat({ token: refreshToken });
-      await user.save();
-
-      res.send({ refreshToken, accessToken });
-    } else {
-      const err = new Error("error in refresh");
-      next(err);
-    }
-  } catch (error) {
-    console.log(error);
-    next(error);
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 });
 
@@ -170,8 +134,7 @@ router.post(
 
 router.get("/me", authorize, async (req, res, next) => {
   try {
-    const user = await UserModel.findById(req.user.id);
-    res.send(user);
+    res.send(req.user);
   } catch (error) {
     console.log(error);
     next(error);

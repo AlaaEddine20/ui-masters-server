@@ -1,5 +1,5 @@
 const { Schema, model } = require("mongoose");
-const bcryptjs = require("bcryptjs");
+const bcrypt = require("bcryptjs");
 
 const UserModel = new Schema({
   name: {
@@ -28,13 +28,24 @@ const UserModel = new Schema({
   },
   likedPosts: [{ type: Schema.Types.ObjectId, ref: "Post" }],
 
-  refreshTokens: [
+  tokens: [
     {
       token: {
         type: String,
       },
     },
   ],
+});
+
+UserModel.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    next();
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+
+  next();
 });
 
 UserModel.methods.toJSON = function () {

@@ -9,23 +9,28 @@ const router = express.Router();
 
 router.post("/", authorize, async (req, res, next) => {
   try {
-    const user = await UserModel.findById(req.user.id);
-
-    if (!user) return res.status(404).send("User not found!");
+    const { title, description, code } = req.body;
 
     const newPost = new PostModel({
-      title: req.body.title,
-      description: req.body.description,
-      user: req.user.id,
-      name: req.user.name,
+      title,
+      description,
+      code,
+      user: req.user._id,
+      username: req.user.name,
     });
 
     await newPost.save();
 
-    res.send("Posted successfully");
+    res.status(201).json({
+      success: true,
+      newPost,
+    });
   } catch (error) {
-    console.log(error);
     next(error);
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
   }
 });
 
