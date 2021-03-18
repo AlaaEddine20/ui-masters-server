@@ -26,6 +26,7 @@ const UserModel = new Schema({
     type: String,
     required: false,
   },
+
   likedPosts: [{ type: Schema.Types.ObjectId, ref: "Post" }],
 
   tokens: [

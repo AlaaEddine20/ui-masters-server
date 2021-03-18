@@ -27,6 +27,7 @@ const PostModel = new Schema({
     type: Date,
     default: Date.now(),
   },
+
   likes: [
     {
       user: {

@@ -9,11 +9,9 @@ const router = express.Router();
 
 router.post("/", authorize, async (req, res, next) => {
   try {
-    const { title, description, js, css } = req.body;
+    const { js, css } = req.body;
 
     const newPost = new PostModel({
-      title,
-      description,
       js,
       css,
       user: req.user._id,
@@ -25,7 +23,6 @@ router.post("/", authorize, async (req, res, next) => {
     res.status(201).json({
       success: true,
       newPost,
-      user: req.user,
     });
   } catch (error) {
     next(error);
@@ -93,7 +90,6 @@ router.get("/most_commented", async (req, res, next) => {
 router.get("/user_posts/:userId", authorize, async (req, res, next) => {
   try {
     const userPosts = await PostModel.find({ user: req.params.userId });
-
     res.status(201).send(userPosts);
   } catch (error) {
     console.log(error);
