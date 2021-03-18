@@ -9,12 +9,13 @@ const router = express.Router();
 
 router.post("/", authorize, async (req, res, next) => {
   try {
-    const { title, description, code } = req.body;
+    const { title, description, js, css } = req.body;
 
     const newPost = new PostModel({
       title,
       description,
-      code,
+      js,
+      css,
       user: req.user._id,
       username: req.user.name,
     });
@@ -24,6 +25,7 @@ router.post("/", authorize, async (req, res, next) => {
     res.status(201).json({
       success: true,
       newPost,
+      user: req.user,
     });
   } catch (error) {
     next(error);
@@ -99,15 +101,15 @@ router.get("/user_posts/:userId", authorize, async (req, res, next) => {
   }
 });
 
-router.get("/userPosts", authorize, async (req, res, next) => {
+router.get("/:userId", authorize, async (req, res, next) => {
   try {
-    const posts = await PostModel.find();
-
+    const posts = await PostModel.find({}).populate("User", "-password");
+    console.log(posts);
     const userPosts = posts.filter(
-      (post) => post.user.toString() === req.user._id.toString()
+      (post) => post.params.userId === req.user._id6050c37ab689703a2c99547c
     );
 
-    res.status(201).send(userPosts);
+    res.status(201).send("OK", userPosts);
   } catch (error) {
     console.log(error);
     next(error);

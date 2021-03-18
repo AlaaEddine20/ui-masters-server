@@ -7,22 +7,22 @@ const PostModel = new Schema({
     ref: "User",
     required: true,
   },
-  username: {
+  // title: {
+  //   type: String,
+  //   required: true,
+  // },
+  js: {
     type: String,
     required: true,
   },
-  title: {
+  css: {
     type: String,
     required: true,
   },
-  code: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
+  // description: {
+  //   type: String,
+  //   required: true,
+  // },
   date: {
     type: Date,
     default: Date.now(),
