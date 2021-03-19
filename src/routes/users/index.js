@@ -70,10 +70,6 @@ router.post("/login", async (req, res, next) => {
       expiresIn: "30d",
     });
 
-    // const refreshToken = jwt.sign({ _id: user._id }, process.env.JWT_REFRESH, {
-    //   expiresIn: "30d",
-    // });
-
     user.tokens = user.tokens.concat({ token: accessToken });
     await user.save();
 
@@ -93,7 +89,7 @@ router.post("/login", async (req, res, next) => {
 
 router.post("/logout", authorize, async (req, res, next) => {
   try {
-    res.clearCookie("refreshToken", { path: "/refreshToken" });
+    // res.clearCookie("", { path: "/refreshToken" });
     return res.json({ msg: "Logged out" });
   } catch (error) {
     next(error);
