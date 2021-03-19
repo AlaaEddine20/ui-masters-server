@@ -5,7 +5,7 @@ const UserModel = new Schema({
   name: {
     type: String,
     required: true,
-    minLength: 4,
+    minLength: 2,
   },
   lastname: {
     type: String,

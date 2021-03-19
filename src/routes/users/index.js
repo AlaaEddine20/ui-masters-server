@@ -99,10 +99,12 @@ router.post("/logout", authorize, async (req, res, next) => {
 
 router.post(
   "/:userId/upload",
+  authorize,
   cloudMulter.single("image"),
   async (req, res, next) => {
     try {
       const image = { profilePic: req.file.path };
+
       const profilePic = await UserModel.findByIdAndUpdate(
         req.params.userId,
         image,
