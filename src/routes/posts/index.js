@@ -9,9 +9,10 @@ const router = express.Router();
 
 router.post("/", authorize, async (req, res, next) => {
   try {
-    const { js, css } = req.body;
+    const { title, js, css } = req.body;
 
     const newPost = new PostModel({
+      title,
       js,
       css,
       user: req.user._id,
