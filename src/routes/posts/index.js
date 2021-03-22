@@ -35,7 +35,7 @@ router.post("/", authorize, async (req, res, next) => {
 
 router.get("/", async (req, res, next) => {
   try {
-    const posts = await PostModel.find();
+    const posts = await PostModel.find().populate("user", "-tokens");
     res.status(201).send(posts);
   } catch (error) {
     console.log(error);
