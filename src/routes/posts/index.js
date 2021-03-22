@@ -2,9 +2,6 @@ const express = require("express");
 const PostModel = require("./schema");
 const { authorize } = require("./../../middlewares/auth");
 const UserModel = require("./../users/schema");
-const { route } = require("../users");
-const { findById } = require("./schema");
-
 const router = express.Router();
 
 router.post("/", authorize, async (req, res, next) => {
