@@ -141,7 +141,7 @@ router.get("/me", authorize, async (req, res, next) => {
 
 router.get("/all", authorize, async (req, res, next) => {
   try {
-    const users = await UserModel.find().select("-password");
+    const users = await UserModel.find().select("-password", "-token");
     res.send(users);
   } catch (error) {
     console.log(error);
