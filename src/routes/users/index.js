@@ -102,7 +102,7 @@ router.post(
   cloudMulter.single("image"),
   async (req, res, next) => {
     try {
-      const image = req.file.path;
+      const image = { profilePic: req.file.path };
 
       const user = await UserModel.findByIdAndUpdate(req.params.userId, image, {
         runValidators: true,
