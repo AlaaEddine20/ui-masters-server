@@ -99,23 +99,18 @@ router.post("/logout", authorize, async (req, res, next) => {
 
 router.post(
   "/:userId/upload",
-  authorize,
   cloudMulter.single("image"),
   async (req, res, next) => {
     try {
-      const image = { profilePic: req.file.path };
+      const image = req.file.path;
 
-      const profilePic = await UserModel.findByIdAndUpdate(
-        req.params.userId,
-        image,
-        {
-          runValidators: true,
-          new: true,
-        }
-      );
+      const user = await UserModel.findByIdAndUpdate(req.params.userId, image, {
+        runValidators: true,
+        new: true,
+      });
 
-      if (profilePic) {
-        res.status(201).send("image uploaded");
+      if (user) {
+        res.status(201).send(image);
       } else {
         const err = new Error(
           `User with id ${req.params.userId} doesn't exist`
@@ -124,7 +119,6 @@ router.post(
         next(err);
       }
     } catch (error) {
-      console.log(error);
       next(error);
     }
   }
