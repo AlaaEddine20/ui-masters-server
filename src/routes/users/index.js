@@ -58,7 +58,7 @@ router.post("/login", async (req, res, next) => {
         error: "Password must contain more than 6 characters",
       });
 
-    const user = await await UserModel.findOne({ email });
+    const user = await UserModel.findOne({ email });
 
     if (!user) return res.status(401).json({ msg: "You must register first!" });
 

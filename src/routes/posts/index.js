@@ -56,15 +56,18 @@ router.delete("/:id", authorize, async (req, res, next) => {
     const postToDelete = await PostModel.findByIdAndDelete(req.params.id);
 
     if (postToDelete) {
-      res.send("Deleted!");
+      res.send("Deleted");
     } else {
       const error = new Error(`Product with ${req.params.id} id not found`);
       error.httpStatusCode = 404;
       next(error);
     }
   } catch (error) {
-    console.log(error);
     next(error);
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
   }
 });
 
