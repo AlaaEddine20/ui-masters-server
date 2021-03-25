@@ -51,6 +51,23 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
+router.delete("/:id", authorize, async (req, res, next) => {
+  try {
+    const postToDelete = await PostModel.findByIdAndDelete(req.params.id);
+
+    if (postToDelete) {
+      res.send("Deleted!");
+    } else {
+      const error = new Error(`Product with ${req.params.id} id not found`);
+      error.httpStatusCode = 404;
+      next(error);
+    }
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+});
+
 router.get("/most_liked", async (req, res, next) => {
   try {
     const postLikes = await PostModel.find().sort({
