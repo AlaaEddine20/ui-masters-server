@@ -36,8 +36,11 @@ router.get("/", async (req, res, next) => {
     const posts = await PostModel.find().populate("user", "-tokens");
     res.status(201).send(posts);
   } catch (error) {
-    console.log(error);
     next(error);
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
   }
 });
 
@@ -46,8 +49,11 @@ router.get("/:id", async (req, res, next) => {
     const post = await PostModel.findById(req.params.id);
     res.status(201).send(post);
   } catch (error) {
-    console.log(error);
     next(error);
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
   }
 });
 
@@ -110,23 +116,11 @@ router.get("/user_posts/:userId", authorize, async (req, res, next) => {
     const userPosts = await PostModel.find({ user: req.params.userId });
     res.status(201).send(userPosts);
   } catch (error) {
-    console.log(error);
     next(error);
-  }
-});
-
-router.get("/:userId", authorize, async (req, res, next) => {
-  try {
-    const posts = await PostModel.find({}).populate("User", "-password");
-    console.log(posts);
-    const userPosts = posts.filter(
-      (post) => post.params.userId === req.user._id6050c37ab689703a2c99547c
-    );
-
-    res.status(201).send("OK", userPosts);
-  } catch (error) {
-    console.log(error);
-    next(error);
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
   }
 });
 
@@ -150,8 +144,11 @@ router.put("/like/:postId/", authorize, async (req, res, next) => {
 
     res.send(post);
   } catch (error) {
-    console.log(error);
     next(error);
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
   }
 });
 
@@ -175,8 +172,11 @@ router.put("/unlike/:postId/", authorize, async (req, res, next) => {
 
     res.send(post);
   } catch (error) {
-    console.log(error);
     next(error);
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
   }
 });
 
@@ -193,8 +193,11 @@ router.put("/comment/:postId", authorize, async (req, res, next) => {
       name,
     };
   } catch (error) {
-    console.log(error);
     next(error);
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
   }
 });
 
