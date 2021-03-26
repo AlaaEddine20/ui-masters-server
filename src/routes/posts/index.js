@@ -51,14 +51,14 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-router.delete("/:id", authorize, async (req, res, next) => {
+router.delete("/:postId", authorize, async (req, res, next) => {
   try {
-    const postToDelete = await PostModel.findByIdAndDelete(req.params.id);
+    const postToDelete = await PostModel.findByIdAndDelete(req.params.postId);
 
     if (postToDelete) {
-      res.send("Deleted");
+      res.status(204).send();
     } else {
-      const error = new Error(`Product with ${req.params.id} id not found`);
+      const error = new Error(`Product with ${req.params.postId} id not found`);
       error.httpStatusCode = 404;
       next(error);
     }
