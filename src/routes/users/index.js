@@ -72,12 +72,13 @@ router.post("/login", async (req, res, next) => {
 
     user.tokens = user.tokens.concat({ token: accessToken });
     await user.save();
-
-    res.json({
-      success: true,
-      user,
-      accessToken,
-    });
+    setTimeout(() => {
+      res.json({
+        success: true,
+        user,
+        accessToken,
+      });
+    }, 500);
   } catch (error) {
     next(error);
     return res.status(500).json({
@@ -92,11 +93,7 @@ router.post("/logout", authorize, async (req, res, next) => {
     req.user.tokens = req.user.tokens.filter(
       (token) => token.token !== req.headers.authorization.split(" ")[1]
     );
-    // console.log(
-    //   req.user.tokens.filter(
-    //     (t) => t.token !== req.headers.authorization.split(" ")[1]
-    //   )
-    // );
+
     await req.user.save();
     res.json({ success: true, msg: "Logged out" });
   } catch (error) {

@@ -12,6 +12,7 @@ const authorize = async (req, res, next) => {
       next();
     } else {
       const err = new Error("unauthorized");
+      // console.log(err);
       next(err);
     }
   } catch (e) {

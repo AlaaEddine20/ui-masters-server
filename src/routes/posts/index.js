@@ -18,10 +18,12 @@ router.post("/", authorize, async (req, res, next) => {
 
     await newPost.save();
 
-    res.status(201).json({
-      success: true,
-      newPost,
-    });
+    setTimeout(() => {
+      res.status(201).json({
+        success: true,
+        newPost,
+      });
+    }, 500);
   } catch (error) {
     next(error);
     res.status(400).json({
@@ -62,7 +64,9 @@ router.delete("/:postId", authorize, async (req, res, next) => {
     const postToDelete = await PostModel.findByIdAndDelete(req.params.postId);
 
     if (postToDelete) {
-      res.status(204).send();
+      setTimeout(function () {
+        res.status(204).send();
+      }, 500);
     } else {
       const error = new Error(`Product with ${req.params.postId} id not found`);
       error.httpStatusCode = 404;
@@ -124,7 +128,7 @@ router.get("/user_posts/:userId", authorize, async (req, res, next) => {
   }
 });
 
-router.put("/like/:postId/", authorize, async (req, res, next) => {
+router.put("/like/:postId", authorize, async (req, res, next) => {
   try {
     const newLike = {
       user: req.user.id,
