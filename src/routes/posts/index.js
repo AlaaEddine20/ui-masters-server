@@ -133,16 +133,15 @@ router.put("/like", authorize, async (req, res, next) => {
     const post = await PostModel.findByIdAndUpdate(
       req.body.postId,
       {
-        $addToSet: { likes: req.user._id },
+        $push: { likes: { _id: req.user._id } },
       },
       {
         new: true,
       }
     );
 
+    res.status(200).json({ success: true, post });
     await post.save();
-
-    res.send(post);
   } catch (error) {
     next(error);
     res.status(400).json({
@@ -157,16 +156,15 @@ router.put("/unlike", authorize, async (req, res, next) => {
     const post = await PostModel.findByIdAndUpdate(
       req.body.postId,
       {
-        $pull: { likes: req.user._id },
+        $pull: { likes: { _id: req.user._id } },
       },
       {
         new: true,
       }
     );
 
+    res.status(200).json({ success: true, post });
     await post.save();
-
-    res.send(post);
   } catch (error) {
     next(error);
     res.status(400).json({
