@@ -128,16 +128,12 @@ router.get("/user_posts/:userId", authorize, async (req, res, next) => {
   }
 });
 
-router.put("/like/:postId", authorize, async (req, res, next) => {
+router.put("/like", authorize, async (req, res, next) => {
   try {
-    const newLike = {
-      user: req.user.id,
-    };
-
     const post = await PostModel.findByIdAndUpdate(
-      req.params.postId,
+      req.body.postId,
       {
-        $addToSet: { likes: newLike },
+        $addToSet: { likes: req.user._id },
       },
       {
         new: true,
@@ -156,16 +152,12 @@ router.put("/like/:postId", authorize, async (req, res, next) => {
   }
 });
 
-router.put("/unlike/:postId/", authorize, async (req, res, next) => {
+router.put("/unlike", authorize, async (req, res, next) => {
   try {
-    const newLike = {
-      user: req.user.id,
-    };
-
     const post = await PostModel.findByIdAndUpdate(
-      req.params.postId,
+      req.body.postId,
       {
-        $pull: { likes: newLike },
+        $pull: { likes: req.user._id },
       },
       {
         new: true,
