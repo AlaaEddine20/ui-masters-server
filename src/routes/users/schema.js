@@ -1,7 +1,7 @@
 const { Schema, model } = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-const UserModel = new Schema({
+const UserSchema = new Schema({
   name: {
     type: String,
     required: true,
@@ -45,7 +45,7 @@ const UserModel = new Schema({
   ],
 });
 
-UserModel.pre("save", async function (next) {
+UserSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     next();
   }
@@ -56,7 +56,7 @@ UserModel.pre("save", async function (next) {
   next();
 });
 
-UserModel.methods.toJSON = function () {
+UserSchema.methods.toJSON = function () {
   const user = this;
   const userObject = user.toObject();
 
@@ -66,4 +66,4 @@ UserModel.methods.toJSON = function () {
   return userObject;
 };
 
-module.exports = model("User", UserModel);
+module.exports = model("User", UserSchema);

@@ -1,7 +1,8 @@
 const { Schema, model } = require("mongoose");
 const mongoose = require("mongoose");
+const uniqueValidator = require("mongoose-unique-validator");
 
-const PostModel = new Schema({
+const PostSchema = new Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -29,6 +30,7 @@ const PostModel = new Schema({
       user: {
         type: Schema.Types.ObjectId,
         ref: "User",
+        unique: true,
       },
     },
   ],
@@ -57,5 +59,5 @@ const PostModel = new Schema({
     },
   ],
 });
-
-module.exports = model("Posts", PostModel);
+PostSchema.plugin(uniqueValidator);
+module.exports = model("Posts", PostSchema);

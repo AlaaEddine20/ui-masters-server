@@ -1,4 +1,4 @@
-const UserModel = require("../routes/users/schema");
+const UserSchema = require("../routes/users/schema");
 const jwt = require("jsonwebtoken");
 
 const authorize = async (req, res, next) => {
@@ -7,7 +7,7 @@ const authorize = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     if (decoded) {
-      const user = await UserModel.findById(decoded._id);
+      const user = await UserSchema.findById(decoded._id);
       req.user = user;
       next();
     } else {

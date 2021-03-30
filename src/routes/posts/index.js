@@ -1,14 +1,14 @@
 const express = require("express");
-const PostModel = require("./schema");
+const PostSchema = require("./schema");
 const { authorize } = require("./../../middlewares/auth");
-const UserModel = require("./../users/schema");
+const UserSchema = require("./../users/schema");
 const router = express.Router();
 
 router.post("/", authorize, async (req, res, next) => {
   try {
     const { title, js, css } = req.body;
 
-    const newPost = new PostModel({
+    const newPost = new PostSchema({
       title,
       js,
       css,
@@ -35,7 +35,7 @@ router.post("/", authorize, async (req, res, next) => {
 
 router.get("/", async (req, res, next) => {
   try {
-    const posts = await PostModel.find().populate("user", "-tokens");
+    const posts = await PostSchema.find().populate("user", "-tokens");
     res.status(201).send(posts);
   } catch (error) {
     next(error);
@@ -48,7 +48,7 @@ router.get("/", async (req, res, next) => {
 
 router.get("/:id", async (req, res, next) => {
   try {
-    const post = await PostModel.findById(req.params.id);
+    const post = await PostSchema.findById(req.params.id);
     res.status(201).send(post);
   } catch (error) {
     next(error);
@@ -61,7 +61,7 @@ router.get("/:id", async (req, res, next) => {
 
 router.delete("/:postId", authorize, async (req, res, next) => {
   try {
-    const postToDelete = await PostModel.findByIdAndDelete(req.params.postId);
+    const postToDelete = await PostSchema.findByIdAndDelete(req.params.postId);
 
     if (postToDelete) {
       setTimeout(function () {
@@ -83,7 +83,7 @@ router.delete("/:postId", authorize, async (req, res, next) => {
 
 router.get("/most_liked", async (req, res, next) => {
   try {
-    const postLikes = await PostModel.find().sort({
+    const postLikes = await PostSchema.find().sort({
       likes: -1, // sort by most recent likes
     });
     res.status(201).send(postLikes);
@@ -95,7 +95,7 @@ router.get("/most_liked", async (req, res, next) => {
 
 router.get("/most_recent", async (req, res, next) => {
   try {
-    const posts = await PostModel.find().sort({ date: 1 });
+    const posts = await PostSchema.find().sort({ date: 1 });
     res.status(201).send(posts);
   } catch (error) {
     console.log("ERROR", error);
@@ -105,7 +105,7 @@ router.get("/most_recent", async (req, res, next) => {
 
 router.get("/most_commented", async (req, res, next) => {
   try {
-    const postLikes = await PostModel.find().sort({
+    const postLikes = await PostSchema.find().sort({
       comments: -1,
     });
     res.status(201).send(postLikes);
@@ -117,7 +117,7 @@ router.get("/most_commented", async (req, res, next) => {
 
 router.get("/user_posts/:userId", authorize, async (req, res, next) => {
   try {
-    const userPosts = await PostModel.find({ user: req.params.userId });
+    const userPosts = await PostSchema.find({ user: req.params.userId });
     res.status(201).send(userPosts);
   } catch (error) {
     next(error);
@@ -128,12 +128,12 @@ router.get("/user_posts/:userId", authorize, async (req, res, next) => {
   }
 });
 
-router.put("/like", authorize, async (req, res, next) => {
+router.post("/like", authorize, async (req, res, next) => {
   try {
-    const post = await PostModel.findByIdAndUpdate(
+    const post = await PostSchema.findByIdAndUpdate(
       req.body.postId,
       {
-        $push: { likes: { _id: req.user._id } },
+        $addToSet: { likes: { _id: req.user._id } },
       },
       {
         new: true,
@@ -151,12 +151,12 @@ router.put("/like", authorize, async (req, res, next) => {
   }
 });
 
-router.put("/unlike", authorize, async (req, res, next) => {
+router.delete("/like/:postId", authorize, async (req, res, next) => {
   try {
-    const post = await PostModel.findByIdAndUpdate(
-      req.body.postId,
+    const post = await PostSchema.findByIdAndUpdate(
+      req.params.postId,
       {
-        $pull: { likes: { _id: req.user._id } },
+        $unset: { likes: { _id: req.user._id } },
       },
       {
         new: true,
@@ -176,8 +176,8 @@ router.put("/unlike", authorize, async (req, res, next) => {
 
 router.put("/comment/:postId", authorize, async (req, res, next) => {
   try {
-    const post = await PostModel.findById(req.params.postId);
-    const user = await UserModel.findById(req.user._id);
+    const post = await PostSchema.findById(req.params.postId);
+    const user = await UserSchema.findById(req.user._id);
 
     if (!user) return res.status(404).send("User not found");
     if (!post) return res.status(404).send("Post not found");

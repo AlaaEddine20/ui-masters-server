@@ -1,7 +1,7 @@
 const express = require("express");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const UserModel = require("./schema");
+const UserSchema = require("./schema");
 const { authorize } = require("../../middlewares/auth");
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
@@ -22,11 +22,11 @@ router.post("/register", async (req, res, next) => {
   try {
     const { name, lastname, email, password } = req.body;
 
-    const userExists = await UserModel.findOne({ email }).select("-password");
+    const userExists = await UserSchema.findOne({ email }).select("-password");
 
     if (userExists) return res.status(401).send("User already exists!");
 
-    const newUser = new UserModel({
+    const newUser = new UserSchema({
       name,
       lastname,
       email,
@@ -58,7 +58,7 @@ router.post("/login", async (req, res, next) => {
         error: "Password must contain more than 6 characters",
       });
 
-    const user = await UserModel.findOne({ email });
+    const user = await UserSchema.findOne({ email });
 
     if (!user) return res.status(401).json({ msg: "You must register first!" });
 
@@ -109,10 +109,14 @@ router.post(
     try {
       const image = { profilePic: req.file.path };
 
-      const user = await UserModel.findByIdAndUpdate(req.params.userId, image, {
-        runValidators: true,
-        new: true,
-      });
+      const user = await UserSchema.findByIdAndUpdate(
+        req.params.userId,
+        image,
+        {
+          runValidators: true,
+          new: true,
+        }
+      );
 
       if (user) {
         res.status(201).send(image);
@@ -140,7 +144,7 @@ router.get("/me", authorize, async (req, res, next) => {
 
 router.get("/all", authorize, async (req, res, next) => {
   try {
-    const users = await UserModel.find().select("-password, -token");
+    const users = await UserSchema.find().select("-password, -token");
     res.send(users);
   } catch (error) {
     console.log(error);
@@ -150,7 +154,7 @@ router.get("/all", authorize, async (req, res, next) => {
 
 router.get("/:id", authorize, async (req, res, next) => {
   try {
-    const userById = await UserModel.findById(req.params.id);
+    const userById = await UserSchema.findById(req.params.id);
     res.send(userById);
   } catch (error) {
     console.log(error);
@@ -160,7 +164,7 @@ router.get("/:id", authorize, async (req, res, next) => {
 
 router.put("/:id", authorize, async (req, res, next) => {
   try {
-    const user = await UserModel.findById(req.params.id);
+    const user = await UserSchema.findById(req.params.id);
 
     if (!user) return res.status(404).send("User not found");
 
