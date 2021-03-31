@@ -156,7 +156,7 @@ router.delete("/like/:postId", authorize, async (req, res, next) => {
     const post = await PostSchema.findByIdAndUpdate(
       req.params.postId,
       {
-        $unset: { likes: { _id: req.user._id } },
+        $pull: { likes: { _id: req.user._id } },
       },
       {
         new: true,
