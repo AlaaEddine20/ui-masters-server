@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
 const UserSchema = new Schema({
@@ -27,10 +28,10 @@ const UserSchema = new Schema({
     required: false,
   },
 
-  likedPosts: [
+  posts: [
     {
       post: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Posts",
       },
     },

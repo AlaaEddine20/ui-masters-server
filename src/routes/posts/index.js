@@ -18,12 +18,10 @@ router.post("/", authorize, async (req, res, next) => {
 
     await newPost.save();
 
-    setTimeout(() => {
-      res.status(201).json({
-        success: true,
-        newPost,
-      });
-    }, 500);
+    res.status(201).json({
+      success: true,
+      newPost,
+    });
   } catch (error) {
     next(error);
     res.status(400).json({
@@ -64,9 +62,7 @@ router.delete("/:postId", authorize, async (req, res, next) => {
     const postToDelete = await PostSchema.findByIdAndDelete(req.params.postId);
 
     if (postToDelete) {
-      setTimeout(function () {
-        res.status(204).send();
-      }, 500);
+      res.status(204).send();
     } else {
       const error = new Error(`Product with ${req.params.postId} id not found`);
       error.httpStatusCode = 404;
@@ -81,44 +77,31 @@ router.delete("/:postId", authorize, async (req, res, next) => {
   }
 });
 
-router.get("/most_liked", async (req, res, next) => {
-  try {
-    const postLikes = await PostSchema.find().sort({
-      likes: -1, // sort by most recent likes
-    });
-    res.status(201).send(postLikes);
-  } catch (error) {
-    console.log(error);
-    next(error);
-  }
-});
-
-router.get("/most_recent", async (req, res, next) => {
-  try {
-    const posts = await PostSchema.find().sort({ date: 1 });
-    res.status(201).send(posts);
-  } catch (error) {
-    console.log("ERROR", error);
-    next(error);
-  }
-});
-
-router.get("/most_commented", async (req, res, next) => {
-  try {
-    const postLikes = await PostSchema.find().sort({
-      comments: -1,
-    });
-    res.status(201).send(postLikes);
-  } catch (error) {
-    console.log(error);
-    next(error);
-  }
-});
-
 router.get("/user_posts/:userId", authorize, async (req, res, next) => {
   try {
     const userPosts = await PostSchema.find({ user: req.params.userId });
     res.status(201).send(userPosts);
+  } catch (error) {
+    next(error);
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+router.put("/:postId", authorize, async (req, res, next) => {
+  try {
+    const updatedPost = await PostSchema.findByIdAndUpdate(
+      req.params.postId,
+      req.body,
+      {
+        runValidators: true,
+        new: true,
+      }
+    );
+
+    res.send(updatedPost);
   } catch (error) {
     next(error);
     res.status(400).json({
@@ -140,11 +123,11 @@ router.post("/like", authorize, async (req, res, next) => {
       }
     );
 
-    res.status(200).json({ success: true, post });
+    res.status(200).send({ success: true, post });
     await post.save();
   } catch (error) {
     next(error);
-    res.status(400).json({
+    res.status(400).send({
       success: false,
       error: error.message,
     });
@@ -165,27 +148,6 @@ router.delete("/like/:postId", authorize, async (req, res, next) => {
 
     res.status(200).json({ success: true, post });
     await post.save();
-  } catch (error) {
-    next(error);
-    res.status(400).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-
-router.put("/comment/:postId", authorize, async (req, res, next) => {
-  try {
-    const post = await PostSchema.findById(req.params.postId);
-    const user = await UserSchema.findById(req.user._id);
-
-    if (!user) return res.status(404).send("User not found");
-    if (!post) return res.status(404).send("Post not found");
-
-    const newComment = {
-      text,
-      name,
-    };
   } catch (error) {
     next(error);
     res.status(400).json({

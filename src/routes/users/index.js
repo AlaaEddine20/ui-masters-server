@@ -72,13 +72,12 @@ router.post("/login", async (req, res, next) => {
 
     user.tokens = user.tokens.concat({ token: accessToken });
     await user.save();
-    setTimeout(() => {
-      res.json({
-        success: true,
-        user,
-        accessToken,
-      });
-    }, 500);
+
+    res.json({
+      success: true,
+      user,
+      accessToken,
+    });
   } catch (error) {
     next(error);
     return res.status(500).json({
@@ -152,7 +151,7 @@ router.get("/all", authorize, async (req, res, next) => {
   }
 });
 
-router.get("/:id", authorize, async (req, res, next) => {
+router.get("/:id", async (req, res, next) => {
   try {
     const userById = await UserSchema.findById(req.params.id);
     res.send(userById);
@@ -164,7 +163,9 @@ router.get("/:id", authorize, async (req, res, next) => {
 
 router.put("/:id", authorize, async (req, res, next) => {
   try {
-    const user = await UserSchema.findById(req.params.id);
+    const user = await (await UserSchema.findById(req.params.id)).populate(
+      "posts"
+    );
 
     if (!user) return res.status(404).send("User not found");
 

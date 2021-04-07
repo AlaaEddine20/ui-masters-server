@@ -34,30 +34,6 @@ const PostSchema = new Schema({
       },
     },
   ],
-  comments: [
-    {
-      text: {
-        type: String,
-        required: true,
-      },
-      user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-      date: {
-        type: Date,
-        default: Date.now(),
-      },
-      likes: [
-        {
-          user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-          },
-        },
-      ],
-    },
-  ],
 });
 PostSchema.plugin(uniqueValidator);
 module.exports = model("Posts", PostSchema);
