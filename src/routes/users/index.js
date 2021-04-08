@@ -2,6 +2,7 @@ const express = require("express");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const UserSchema = require("./schema");
+const Posts = require("../posts/schema");
 const { authorize } = require("../../middlewares/auth");
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
@@ -154,7 +155,8 @@ router.get("/all", authorize, async (req, res, next) => {
 router.get("/:id", async (req, res, next) => {
   try {
     const userById = await UserSchema.findById(req.params.id);
-    res.send(userById);
+    const posts = await Posts.find({ user: req.params.id });
+    res.send({ user: userById, posts });
   } catch (error) {
     console.log(error);
     next(error);
