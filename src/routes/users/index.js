@@ -88,7 +88,7 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-router.post("/logout", authorize, async (req, res, next) => {
+router.get("/logout", async (req, res, next) => {
   try {
     req.user.tokens = req.user.tokens.filter(
       (token) => token.token !== req.headers.authorization.split(" ")[1]
