@@ -19,6 +19,13 @@ const cloudStorage = new CloudinaryStorage({
 const cloudMulter = multer({ storage: cloudStorage });
 const router = express.Router();
 
+const server = express();
+
+server.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  next();
+});
+
 router.post("/register", async (req, res, next) => {
   try {
     const { name, lastname, email, password } = req.body;
@@ -91,7 +98,7 @@ router.post("/login", async (req, res, next) => {
 router.get("/logout", async (req, res, next) => {
   try {
     req.user.tokens = req.user.tokens.filter(
-      (token) => token.token !== req.headers.authorization.split(" ")[1]
+      (token) => token.token !== req.headers.authorization.split(" ")[1],
     );
 
     await req.user.save();
@@ -115,14 +122,14 @@ router.post(
         {
           runValidators: true,
           new: true,
-        }
+        },
       );
 
       if (user) {
         res.status(201).send(image);
       } else {
         const err = new Error(
-          `User with id ${req.params.userId} doesn't exist`
+          `User with id ${req.params.userId} doesn't exist`,
         );
         err.httpStatusCode = 404;
         next(err);
@@ -130,7 +137,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 router.get("/me", authorize, async (req, res, next) => {
@@ -166,7 +173,7 @@ router.get("/:id", async (req, res, next) => {
 router.put("/:id", authorize, async (req, res, next) => {
   try {
     const user = await (await UserSchema.findById(req.params.id)).populate(
-      "posts"
+      "posts",
     );
 
     if (!user) return res.status(404).send("User not found");
