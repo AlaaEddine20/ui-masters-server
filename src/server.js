@@ -16,6 +16,7 @@ connectToDB();
 const staticFolderPath = join(__dirname, "../public");
 server.use(express.static(staticFolderPath));
 server.use(express.json());
+server.use(res.header("Access-Control-Allow-Origin", "*"));
 
 const whitelist = ["http://localhost:3000"];
 const corsOptions = {
