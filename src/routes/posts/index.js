@@ -98,7 +98,7 @@ router.put("/:postId", authorize, async (req, res, next) => {
       {
         runValidators: true,
         new: true,
-      }
+      },
     );
 
     res.send(updatedPost);
@@ -120,7 +120,7 @@ router.post("/like", authorize, async (req, res, next) => {
       },
       {
         new: true,
-      }
+      },
     );
 
     res.status(200).send({ success: true, post });
@@ -143,7 +143,7 @@ router.delete("/like/:postId", authorize, async (req, res, next) => {
       },
       {
         new: true,
-      }
+      },
     );
 
     res.status(200).json({ success: true, post });

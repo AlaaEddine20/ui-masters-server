@@ -19,13 +19,6 @@ const cloudStorage = new CloudinaryStorage({
 const cloudMulter = multer({ storage: cloudStorage });
 const router = express.Router();
 
-const server = express();
-
-server.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  next();
-});
-
 router.post("/register", async (req, res, next) => {
   try {
     const { name, lastname, email, password } = req.body;
