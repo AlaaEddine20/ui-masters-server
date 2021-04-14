@@ -28,14 +28,14 @@ const UserSchema = new Schema({
     required: false,
   },
 
-  posts: [
-    {
-      post: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Posts",
-      },
-    },
-  ],
+  // posts: [
+  //   {
+  //     post: {
+  //       type: mongoose.Schema.Types.ObjectId,
+  //       ref: "Posts",
+  //     },
+  //   },
+  // ],
 
   tokens: [
     {

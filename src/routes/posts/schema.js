@@ -31,6 +31,7 @@ const PostSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "User",
         unique: true,
+        sparse: true,
       },
     },
   ],
